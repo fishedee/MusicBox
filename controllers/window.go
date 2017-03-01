@@ -4,6 +4,7 @@ import (
 	. "github.com/fishedee/web"
 	"github.com/therecipe/qt/gui"
 	"github.com/therecipe/qt/widgets"
+	"musicbox/models"
 	"musicbox/views"
 )
 
@@ -14,6 +15,7 @@ type MainWindow struct {
 	bottomToolFrame *views.BottomToolFrame
 	musicListFrame  *views.MusicListFrame
 	musicInfoFrame  *views.MusicInfoFrame
+	player          *models.Player
 }
 
 func NewMainWindow() *MainWindow {
@@ -45,4 +47,9 @@ func (this *MainWindow) init() {
 		"歌词2",
 		"歌词3",
 	})
+
+	this.player = models.NewPlayer()
+	this.player.SetFileName("/Users/fishedee/Project/fishgo/src/musicbox/res/test.mp3")
+	this.player.SetVolume(100)
+	this.player.Play()
 }
