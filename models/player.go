@@ -4,7 +4,6 @@ import (
 	. "github.com/fishedee/web"
 	"github.com/therecipe/qt/core"
 	"github.com/therecipe/qt/multimedia"
-	"time"
 )
 
 type Player struct {
@@ -37,14 +36,6 @@ func (this *Player) SetVolume(volume int) {
 
 func (this *Player) Play() {
 	this.QMediaPlayer.Play()
-	go func() {
-		time.Sleep(3 * time.Second)
-		this.Log.Debug("%v", this.QMediaPlayer.State())
-		this.Log.Debug("%v", this.QMediaPlayer.Volume())
-		this.Log.Debug("%v", this.QMediaPlayer.Error())
-		this.Log.Debug("%v", this.QMediaPlayer.MediaStatus())
-	}()
-
 }
 
 func (this *Player) Pause() {

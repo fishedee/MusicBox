@@ -8,13 +8,14 @@ import (
 )
 
 type PushButton struct {
-	*widgets.QPushButton
+	*widgets.QLabel
 	Model
 	parent    widgets.QWidget_ITF
 	status    int
 	pixmap    *gui.QPixmap
 	btnWidth  int
 	btnHeight int
+	listener  func()
 }
 
 func NewPushButton(parent widgets.QWidget_ITF) *PushButton {
@@ -25,7 +26,7 @@ func NewPushButton(parent widgets.QWidget_ITF) *PushButton {
 }
 
 func (this *PushButton) init(parent widgets.QWidget_ITF) {
-	this.QPushButton = widgets.NewQPushButton(parent)
+	this.QLabel = widgets.NewQLabel(parent, 0)
 	this.parent = parent
 	this.status = 1
 	this.ConnectMousePressEvent(this.mousePressEvent)
@@ -36,63 +37,58 @@ func (this *PushButton) init(parent widgets.QWidget_ITF) {
 
 func (this *PushButton) LoadPixmap(picName string) {
 	this.pixmap = gui.NewQPixmap5(picName, "", 0)
-	this.btnWidth = this.pixmap.Width() / 4
-	this.btnHeight = this.pixmap.Height()
-	this.updatePixmap()
+	this.btnWidth = this.pixmap.Size().Width() / 4
+	this.btnHeight = this.pixmap.Size().Height()
+	this.update()
 }
 
 func (this *PushButton) enterEvent(event *core.QEvent) {
-	if !this.IsChecked() && this.IsEnabled() {
+	if this.IsEnabled() {
 		this.status = 0
-		this.updatePixmap()
+		this.update()
 	}
 }
 
 func (this *PushButton) leaveEvent(event *core.QEvent) {
-	if !this.IsChecked() && this.IsEnabled() {
+	if this.IsEnabled() {
 		this.status = 1
-		this.updatePixmap()
+		this.update()
 	}
 }
 
 func (this *PushButton) SetDisabled(disabled bool) {
-	this.QPushButton.SetDisabled(disabled)
+	this.QLabel.SetDisabled(disabled)
 	if !this.IsEnabled() {
 		this.status = 2
-		this.updatePixmap()
+		this.update()
 	} else {
 		this.status = 1
-		this.updatePixmap()
+		this.update()
 	}
 }
 
 func (this *PushButton) mousePressEvent(event *gui.QMouseEvent) {
 	if event.Button() == core.Qt__LeftButton {
 		this.status = 2
-		this.updatePixmap()
+		this.update()
 	}
 }
 
 func (this *PushButton) mouseReleaseEvent(event *gui.QMouseEvent) {
 	if event.Button() == core.Qt__LeftButton {
-		this.Clicked(true)
+		this.status = 0
+		if this.listener != nil {
+			this.listener()
+		}
+		this.update()
 	}
-	if !this.IsChecked() {
-		this.status = 3
-	}
-	if this.Menu() != nil {
-		this.Menu().Exec2(event.GlobalPos(), nil)
-	}
-	this.updatePixmap()
+	this.update()
 }
 
-func (this *PushButton) updatePixmap() {
-	if this.pixmap == nil {
-		return
-	}
-	rect := this.Rect()
-	pixmap := this.pixmap.Copy2(this.btnWidth*this.status, 0, this.btnWidth, this.btnHeight)
-	pixmap = pixmap.Scaled2(rect.Width(), rect.Height(), 0, 0)
-	qicon := gui.NewQIcon2(pixmap)
-	this.SetIcon(qicon)
+func (this *PushButton) SetClickListener(listener func()) {
+	this.listener = listener
+}
+
+func (this *PushButton) update() {
+	this.SetPixmap(this.pixmap.Copy2(this.btnWidth*this.status, 0, this.btnWidth, this.btnHeight))
 }
