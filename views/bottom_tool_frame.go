@@ -20,7 +20,6 @@ type BottomToolFrame struct {
 	timeLabel    *widgets.QLabel
 	volumnLabel  *widgets.QLabel
 	volumnSlider *widgets.QSlider
-	curTimeInt   int
 }
 
 func NewBottomToolFrame(parent widgets.QWidget_ITF) *BottomToolFrame {
@@ -89,15 +88,58 @@ func (this *BottomToolFrame) init(parent widgets.QWidget_ITF) {
 	hLayout.SetStretchFactor(this.timeLabel, 1)
 	hLayout.SetStretchFactor(this.volumnLabel, 1)
 	hLayout.SetStretchFactor(this.volumnSlider, 5)
-
-	//FIXME
-	this.lastButton.ConnectClicked(this.fixme)
-	this.playButton.ConnectClicked(this.fixme)
-	this.stopButton.ConnectClicked(this.fixme)
-	this.nextButton.ConnectClicked(this.fixme)
-	this.orderButton.ConnectClicked(this.fixme)
 }
 
-func (this *BottomToolFrame) fixme(checked bool) {
-	//FIXME
+func (this *BottomToolFrame) getButton(buttonId string) *widgets.QPushButton {
+	buttonIdMap := map[string]*widgets.QPushButton{
+		"last":  this.lastButton,
+		"play":  this.playButton,
+		"stop":  this.stopButton,
+		"next":  this.nextButton,
+		"order": this.orderButton,
+	}
+
+	button, isExist := buttonIdMap[buttonId]
+	if isExist == false {
+		panic("invalid button id" + buttonId)
+	}
+	return button
+}
+
+func (this *BottomToolFrame) SetButtonClickListener(buttonId string, listener func()) {
+	button := this.getButton(buttonId)
+	button.ConnectClicked(func(checked bool) {
+		listener()
+	})
+}
+
+func (this *BottomToolFrame) SetButtonEnable(buttonId string, enabled bool) {
+	button := this.getButton(buttonId)
+	button.SetEnabled(enabled)
+}
+
+func (this *BottomToolFrame) SetButtonText(buttonId string, text string) {
+	button := this.getButton(buttonId)
+	button.SetText(text)
+}
+
+func (this *BottomToolFrame) SetSeek(minSeek int, maxSeek int, curSeek int, curLabel string) {
+	this.seekSlider.SetMinimum(minSeek)
+	this.seekSlider.SetMaximum(minSeek)
+	this.seekSlider.SetValue(minSeek)
+	this.timeLabel.SetText(curLabel)
+}
+
+func (this *BottomToolFrame) SetSeekChangeListener(listener func(progress int)) {
+	this.seekSlider.ConnectValueChanged(listener)
+}
+
+func (this *BottomToolFrame) SetVolume(minVolume int, maxVolume int, curVolume int) {
+	this.volumnSlider.SetMinimum(minVolume)
+	this.volumnSlider.SetMaximum(maxVolume)
+	this.volumnSlider.SetValue(curVolume)
+}
+
+func (this *BottomToolFrame) SetVolumeChangeListener(listener func(progress int)) {
+	this.volumnSlider.ConnectValueChanged(listener)
 }
