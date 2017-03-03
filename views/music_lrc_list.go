@@ -10,8 +10,9 @@ import (
 type MusicLrcList struct {
 	*widgets.QListView
 	Model
-	parent widgets.QWidget_ITF
-	model  *gui.QStandardItemModel
+	parent   widgets.QWidget_ITF
+	model    *gui.QStandardItemModel
+	curIndex int
 }
 
 func NewMusicLrcList(parent widgets.QWidget_ITF) *MusicLrcList {
@@ -36,6 +37,8 @@ func (this *MusicLrcList) init(parent widgets.QWidget_ITF) {
 	this.SetSelectionMode(widgets.QAbstractItemView__NoSelection)
 	this.SetVerticalScrollBarPolicy(core.Qt__ScrollBarAlwaysOff)
 	this.SetAcceptDrops(true)
+
+	this.curIndex = -1
 }
 
 func (this *MusicLrcList) SetLrc(lrc []string) {
@@ -46,4 +49,23 @@ func (this *MusicLrcList) SetLrc(lrc []string) {
 		item.SetFont(gui.NewQFont2("Microsoft YaHei", -1, 50, false))
 		this.model.AppendRow2(item)
 	}
+}
+
+func (this *MusicLrcList) ActiveIndex(index int) {
+	if this.curIndex != -1 {
+		color := gui.NewQColor3(0, 0, 0, 0)
+		brush := gui.NewQBrush3(color, 0)
+		this.model.Item(this.curIndex, 0).SetForeground(brush)
+		this.model.Item(this.curIndex, 1).SetForeground(brush)
+		this.model.Item(this.curIndex, 2).SetForeground(brush)
+	}
+	if index != -1 {
+		color := gui.NewQColor3(255, 0, 0, 0)
+		brush := gui.NewQBrush3(color, 0)
+		this.model.Item(index, 0).SetForeground(brush)
+		this.model.Item(index, 1).SetForeground(brush)
+		this.model.Item(index, 2).SetForeground(brush)
+		this.ScrollTo(this.model.Index(index, 0, nil), widgets.QAbstractItemView__PositionAtCenter)
+	}
+	this.curIndex = index
 }

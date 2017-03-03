@@ -30,54 +30,20 @@ func (this *MusicListFrame) init(parent widgets.QWidget_ITF) {
 	this.AddTab(this.allMusicTable, "播放列表")
 	this.AddTab(this.favMusicTable, "我的收藏")
 	this.SetCurrentIndex(0)
-
-	this.allMusicTable.SetContextMenuListener(func(index int) []MusicListContextAction {
-		this.Log.Debug("%v", index)
-		return []MusicListContextAction{
-			MusicListContextAction{
-				Name: "播放",
-				Action: func(actionRows []int) {
-
-				},
-			},
-			MusicListContextAction{
-				Name:   "",
-				Action: nil,
-			},
-			MusicListContextAction{
-				Name: "移除",
-				Action: func(actionRows []int) {
-
-				},
-			},
-			MusicListContextAction{
-				Name:   "",
-				Action: nil,
-			},
-			MusicListContextAction{
-				Name: "收藏",
-				Action: func(actionRows []int) {
-
-				},
-			},
-			MusicListContextAction{
-				Name:   "",
-				Action: nil,
-			},
-			MusicListContextAction{
-				Name: "打开文件",
-				Action: func(actionRows []int) {
-
-				},
-			},
-		}
-	})
 }
 
 func (this *MusicListFrame) AddAllSong(title string, artist string, timeString string) {
 	this.allMusicTable.AddSong(title, artist, timeString)
 }
 
+func (this *MusicListFrame) SetAllSongContext(handler func(index int) []MusicListContextAction) {
+	this.allMusicTable.SetContextMenuListener(handler)
+}
+
 func (this *MusicListFrame) AddFavSong(title string, artist string, timeString string) {
 	this.favMusicTable.AddSong(title, artist, timeString)
+}
+
+func (this *MusicListFrame) SetFavSongContext(handler func(index int) []MusicListContextAction) {
+	this.favMusicTable.SetContextMenuListener(handler)
 }

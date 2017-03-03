@@ -64,3 +64,7 @@ func (this *MusicInfoFrame) SetArtist(artist string) {
 func (this *MusicInfoFrame) SetLrc(lrc []string) {
 	this.musicLrcList.SetLrc(lrc)
 }
+
+func (this *MusicInfoFrame) ActiveLrcIndex(index int) {
+	this.musicLrcList.ActiveIndex(index)
+}

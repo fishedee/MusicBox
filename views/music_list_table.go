@@ -10,8 +10,9 @@ import (
 type MusicListTable struct {
 	*widgets.QTableView
 	Model
-	parent widgets.QWidget_ITF
-	model  *gui.QStandardItemModel
+	parent   widgets.QWidget_ITF
+	model    *gui.QStandardItemModel
+	curIndex int
 }
 
 type MusicListContextAction struct {
@@ -56,6 +57,7 @@ func (this *MusicListTable) init(parent widgets.QWidget_ITF) {
     `)
 
 	this.SetModel(this.model)
+	this.curIndex = -1
 
 }
 
@@ -88,11 +90,21 @@ func (this *MusicListTable) SetDoubleClickListener(handler func(index int)) {
 }
 
 func (this *MusicListTable) ActiveIndex(index int) {
-	color := gui.NewQColor3(0, 0, 0, 0)
-	brush := gui.NewQBrush3(color, 0)
-	this.model.Item(index, 0).SetForeground(brush)
-	this.model.Item(index, 1).SetForeground(brush)
-	this.model.Item(index, 2).SetForeground(brush)
+	if this.curIndex != -1 {
+		color := gui.NewQColor3(0, 0, 0, 0)
+		brush := gui.NewQBrush3(color, 0)
+		this.model.Item(this.curIndex, 0).SetForeground(brush)
+		this.model.Item(this.curIndex, 1).SetForeground(brush)
+		this.model.Item(this.curIndex, 2).SetForeground(brush)
+	}
+	if index != -1 {
+		color := gui.NewQColor3(255, 0, 0, 0)
+		brush := gui.NewQBrush3(color, 0)
+		this.model.Item(index, 0).SetForeground(brush)
+		this.model.Item(index, 1).SetForeground(brush)
+		this.model.Item(index, 2).SetForeground(brush)
+	}
+	this.curIndex = index
 }
 
 func (this *MusicListTable) getContextMenu(actions []MusicListContextAction) *widgets.QMenu {

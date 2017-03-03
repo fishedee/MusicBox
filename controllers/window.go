@@ -5,6 +5,7 @@ import (
 	"github.com/therecipe/qt/gui"
 	"github.com/therecipe/qt/widgets"
 	"musicbox/models"
+	"musicbox/utils"
 	"musicbox/views"
 )
 
@@ -15,7 +16,7 @@ type MainWindow struct {
 	bottomToolFrame *views.BottomToolFrame
 	musicListFrame  *views.MusicListFrame
 	musicInfoFrame  *views.MusicInfoFrame
-	player          *models.Player
+	player          *utils.Player
 }
 
 func NewMainWindow() *MainWindow {
@@ -48,7 +49,7 @@ func (this *MainWindow) init() {
 		"歌词3",
 	})
 
-	this.player = models.NewPlayer()
+	this.player = utils.NewPlayer()
 	this.player.SetFileName("/Users/fishedee/Project/fishgo/src/musicbox/res/test.mp3")
 	this.player.SetVolume(100)
 	this.player.Play()
