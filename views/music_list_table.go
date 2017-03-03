@@ -112,7 +112,7 @@ func (this *MusicListTable) getContextMenu(actions []MusicListContextAction) *wi
 	for _, singleAction := range actions {
 		if singleAction.Name != "" {
 			action := widgets.NewQAction2(singleAction.Name, this.parent)
-			action.ConnectTrigger(func() {
+			action.ConnectTriggered(func(checked bool) {
 				selectedIndexs := this.SelectionModel().SelectedRows(0)
 				selectedRows := []int{}
 				for _, singleIndex := range selectedIndexs {

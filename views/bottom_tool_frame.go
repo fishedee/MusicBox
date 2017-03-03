@@ -92,7 +92,7 @@ func (this *BottomToolFrame) init(parent widgets.QWidget_ITF) {
 
 func (this *BottomToolFrame) getButton(buttonId string) *widgets.QPushButton {
 	buttonIdMap := map[string]*widgets.QPushButton{
-		"last":  this.lastButton,
+		"prev":  this.lastButton,
 		"play":  this.playButton,
 		"stop":  this.stopButton,
 		"next":  this.nextButton,

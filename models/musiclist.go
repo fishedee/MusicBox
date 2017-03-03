@@ -42,14 +42,17 @@ func (this *MusicList) AddAllMusic(music Music) {
 	music.Id = this.idCounter
 	this.idCounter++
 	this.allMusic = append(this.allMusic, music)
-	if len(this.allMusic) == 0 {
-		play(true, 0)
+	if len(this.allMusic) == 1 {
+		this.play(true, 0)
 	}
 }
 
 func (this *MusicList) DelAllMusic(index int) {
+	if index < 0 || index >= len(this.allMusic) {
+		return
+	}
 	delMusic := this.allMusic[index]
-	UnFavAllMusic(delMusic.Id)
+	this.UnFavAllMusic(delMusic.Id)
 	newMusic := []Music{}
 	for singleIndex, singleMusic := range this.allMusic {
 		if singleIndex == index {
@@ -65,14 +68,17 @@ func (this *MusicList) DelAllMusic(index int) {
 			if len(this.allMusic) == 0 {
 				this.playIndex = -1
 			} else {
-				play(true, this.playIndex)
+				this.play(true, this.playIndex)
 			}
 		}
 	}
 }
 
 func (this *MusicList) PlayAllMusic(index int) {
-	play(true, index)
+	if index < 0 || index >= len(this.allMusic) {
+		return
+	}
+	this.play(true, index)
 }
 
 func (this *MusicList) getFavAllMusic(id int) int {
@@ -85,23 +91,35 @@ func (this *MusicList) getFavAllMusic(id int) int {
 }
 
 func (this *MusicList) IsFavAllMusic(index int) bool {
-	return this.getFavAllMusic(this.allMusc[index].Id) != -1
+	if index < 0 || index >= len(this.allMusic) {
+		return false
+	}
+	return this.getFavAllMusic(this.allMusic[index].Id) != -1
 }
 
 func (this *MusicList) FavAllMusic(index int) {
-	favSingleMusic := allMusic[index]
+	if index < 0 || index >= len(this.allMusic) {
+		return
+	}
+	favSingleMusic := this.allMusic[index]
 	this.favMusic = append(this.favMusic, favSingleMusic)
 }
 
 func (this *MusicList) UnFavAllMusic(index int) {
-	favMusicIndex := getFavAllMusic(this.allMusc[index].Id)
+	if index < 0 || index >= len(this.allMusic) {
+		return
+	}
+	favMusicIndex := this.getFavAllMusic(this.allMusic[index].Id)
 	if favMusicIndex == -1 {
 		return
 	}
-	DelFavMusic(favMusicIndex)
+	this.DelFavMusic(favMusicIndex)
 }
 
 func (this *MusicList) DelFavMusic(index int) {
+	if index < 0 || index >= len(this.favMusic) {
+		return
+	}
 	newMusic := []Music{}
 	for singleIndex, singleMusic := range this.favMusic {
 		if singleIndex == index {
@@ -117,14 +135,17 @@ func (this *MusicList) DelFavMusic(index int) {
 			if len(this.favMusic) == 0 {
 				this.playIndex = -1
 			} else {
-				play(false, this.playIndex)
+				this.play(false, this.playIndex)
 			}
 		}
 	}
 }
 
 func (this *MusicList) PlayFavMusic(index int) {
-	play(false, index)
+	if index < 0 || index >= len(this.favMusic) {
+		return
+	}
+	this.play(false, index)
 }
 
 func (this *MusicList) Prev() {
@@ -164,8 +185,8 @@ func (this *MusicList) play(playIsAll bool, playIndex int) {
 	} else {
 		music = this.favMusic
 	}
-	if listener != nil {
-		listener(music[this.playIndex])
+	if this.listener != nil {
+		this.listener(music[this.playIndex])
 	}
 }
 

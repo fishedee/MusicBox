@@ -2,7 +2,7 @@ package utils
 
 import (
 	. "github.com/fishedee/web"
-	"github.com/therecipe/qt/multimedia"
+	//"github.com/therecipe/qt/multimedia"
 	"github.com/therecipe/qt/widgets"
 	"path"
 )
@@ -31,23 +31,29 @@ func (this *FileDialog) init() {
 }
 
 func (this *FileDialog) Open(parent widgets.QWidget_ITF) []FileInfo {
+	this.Log.Debug("%v", "ii")
 	result := []FileInfo{}
 	fileDialog := widgets.NewQFileDialog(parent, 0)
 	files := fileDialog.GetOpenFileNames(parent, "打开", "", "音频文件 (*.mp3 *.wma)", "", 0)
+	this.Log.Debug("%v", files)
 	for _, singleFile := range files {
-		decoder := multimedia.NewQAudioDecoder(parent)
-		decoder.SetSourceFilename(singleFile)
-		title := decoder.MetaData("title")
-		artist := decoder.MetaData("artist")
+		player := NewPlayer()
+		player.SetMetaListener(func() {
+			this.Log.Debug("meta %v", player.GetMetaData())
+		})
+		player.SetFileName(singleFile)
+		title := ""
+		artist := ""
 		name := path.Base(singleFile)
 		format := path.Ext(singleFile)
 		result = append(result, FileInfo{
 			singleFile,
 			name,
 			format,
-			title.ToString(),
-			artist.ToString(),
+			title,
+			artist,
 		})
 	}
+	this.Log.Debug("%v", result)
 	return result
 }
