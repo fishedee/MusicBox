@@ -2,6 +2,7 @@ package controllers
 
 import (
 	. "github.com/fishedee/web"
+	"github.com/therecipe/qt/core"
 	"github.com/therecipe/qt/gui"
 	"github.com/therecipe/qt/widgets"
 	"musicbox/models"
@@ -33,6 +34,7 @@ func (this *MainWindow) init() {
 	icon := gui.NewQIcon5("res/icon.png")
 	this.SetWindowIcon(icon)
 	this.SetWindowTitle("SxPlayer")
+	this.SetWindowFlags(core.Qt__Window | core.Qt__FramelessWindowHint | core.Qt__WindowMinMaxButtonsHint)
 	this.Resize2(800, 600)
 	this.topToolFrame = views.NewTopToolFrame(this)
 	this.bottomToolFrame = views.NewBottomToolFrame(this)
@@ -98,17 +100,20 @@ func (this *MainWindow) init() {
 			views.MusicListContextAction{
 				Name: "打开文件",
 				Action: func(actionRows []int) {
-					fileInfo := this.fileDialog.Open(this)
-					for _, singleFileInfo := range fileInfo {
-						this.musicList.AddAllMusic(models.Music{
-							Id:         0,
-							FilePath:   singleFileInfo.FilePath,
-							FileName:   singleFileInfo.FileName,
-							FileFormat: singleFileInfo.FileFormat,
-							Title:      singleFileInfo.Title,
-							Artist:     singleFileInfo.Artist,
-						})
-					}
+					this.fileDialog.Open(this, func(fileInfo []utils.FileInfo) {
+						for _, singleFileInfo := range fileInfo {
+							this.musicList.AddAllMusic(models.Music{
+								Id:         0,
+								FilePath:   singleFileInfo.FilePath,
+								FileName:   singleFileInfo.FileName,
+								FileFormat: singleFileInfo.FileFormat,
+								Title:      singleFileInfo.Title,
+								Artist:     singleFileInfo.Artist,
+								Duration:   singleFileInfo.Duration,
+							})
+						}
+					})
+
 				},
 			},
 		}
@@ -139,13 +144,28 @@ func (this *MainWindow) init() {
 		}
 	})
 
-	this.player = utils.NewPlayer()
 	this.musicList.SetPlayListener(func(music models.Music) {
 		this.Log.Debug("mm %v", music)
+		this.initBottomToolEmpty()
+		this.musicInfoFrame.SetTitle(music.Title)
+		this.musicInfoFrame.SetArtist(music.Artist)
 		this.player.SetFileName(music.FilePath)
 		this.player.Play()
-		this.initBottomToolEmpty()
 	})
+	this.musicList.SetAddAllMusicListener(func(music models.Music) {
+		this.musicListFrame.AddAllSong(music.Title, music.Artist, music.Duration)
+	})
+	this.musicList.SetAddFavMusicListener(func(music models.Music) {
+		this.musicListFrame.AddFavSong(music.Title, music.Artist, music.Duration)
+	})
+	this.musicList.SetDelAllMusicListener(func(index int) {
+		this.musicListFrame.DelAllSong(index)
+	})
+	this.musicList.SetDelFavMusicListener(func(index int) {
+		this.musicListFrame.DelFavSong(index)
+	})
+
+	this.player = utils.NewPlayer()
 	this.player.SetPositionChangeListener(func() {
 		minPosition, maxPosition, curPosition, curPositionDesc := this.player.GetPosition()
 		this.bottomToolFrame.SetSeek(minPosition, maxPosition, curPosition, curPositionDesc)
@@ -170,9 +190,7 @@ func (this *MainWindow) init() {
 		if this.player.IsStop() || this.player.IsPause() {
 			this.player.Play()
 			this.bottomToolFrame.SetButtonText("play", "暂停")
-		}
-
-		if this.player.IsPlay() {
+		} else {
 			this.player.Pause()
 			this.bottomToolFrame.SetButtonText("play", "播放")
 		}
@@ -191,10 +209,18 @@ func (this *MainWindow) init() {
 		this.player.SetVolume(volume)
 	})
 
+	this.topToolFrame.SetCloseListener(func() {
+		this.Close()
+	})
+	this.topToolFrame.SetMiniListener(func() {
+		this.ShowMinimized()
+	})
 	this.initBottomToolErr()
 }
 
 func (this *MainWindow) initBottomToolErr() {
+	this.musicInfoFrame.SetTitle("")
+	this.musicInfoFrame.SetArtist("")
 	this.bottomToolFrame.SetButtonText("play", "播放")
 	this.bottomToolFrame.SetButtonEnable("play", false)
 	this.bottomToolFrame.SetButtonEnable("stop", false)

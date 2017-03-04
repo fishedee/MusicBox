@@ -125,8 +125,10 @@ func (this *BottomToolFrame) SetButtonText(buttonId string, text string) {
 
 func (this *BottomToolFrame) SetSeek(minSeek int, maxSeek int, curSeek int, curLabel string) {
 	this.seekSlider.SetMinimum(minSeek)
-	this.seekSlider.SetMaximum(minSeek)
-	this.seekSlider.SetValue(minSeek)
+	this.seekSlider.SetMaximum(maxSeek)
+	this.seekSlider.BlockSignals(true)
+	this.seekSlider.SetValue(curSeek)
+	this.seekSlider.BlockSignals(false)
 	this.timeLabel.SetText(curLabel)
 }
 
@@ -137,7 +139,9 @@ func (this *BottomToolFrame) SetSeekChangeListener(listener func(progress int)) 
 func (this *BottomToolFrame) SetVolume(minVolume int, maxVolume int, curVolume int) {
 	this.volumnSlider.SetMinimum(minVolume)
 	this.volumnSlider.SetMaximum(maxVolume)
+	this.seekSlider.BlockSignals(true)
 	this.volumnSlider.SetValue(curVolume)
+	this.seekSlider.BlockSignals(false)
 }
 
 func (this *BottomToolFrame) SetVolumeChangeListener(listener func(progress int)) {

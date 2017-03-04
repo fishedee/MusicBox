@@ -36,12 +36,20 @@ func (this *MusicListFrame) AddAllSong(title string, artist string, timeString s
 	this.allMusicTable.AddSong(title, artist, timeString)
 }
 
+func (this *MusicListFrame) DelAllSong(index int) {
+	this.allMusicTable.DelSong(index)
+}
+
 func (this *MusicListFrame) SetAllSongContext(handler func(index int) []MusicListContextAction) {
 	this.allMusicTable.SetContextMenuListener(handler)
 }
 
 func (this *MusicListFrame) AddFavSong(title string, artist string, timeString string) {
 	this.favMusicTable.AddSong(title, artist, timeString)
+}
+
+func (this *MusicListFrame) DelFavSong(index int) {
+	this.favMusicTable.DelSong(index)
 }
 
 func (this *MusicListFrame) SetFavSongContext(handler func(index int) []MusicListContextAction) {

@@ -25,9 +25,7 @@ func (this *Player) init() {
 
 func (this *Player) SetFileName(fileName string) {
 	url := core.QUrl_FromLocalFile(fileName)
-	this.Log.Debug("%v", url.IsValid())
 	mediaContent := multimedia.NewQMediaContent2(url)
-	this.Log.Debug("%v", mediaContent.IsNull())
 	this.QMediaPlayer.SetMedia(mediaContent, nil)
 }
 
@@ -57,19 +55,27 @@ func (this *Player) GetError() (int, string) {
 }
 
 func (this *Player) GetMetaData() map[string]string {
-	title := this.QMediaPlayer.MetaData("Title")
-	author := this.QMediaPlayer.MetaData("Author")
-	lyrics := this.QMediaPlayer.MetaData("Lyrics")
-	duration := this.QMediaPlayer.MetaData("Duration")
-	albumTitle := this.QMediaPlayer.MetaData("AlbumTitle")
-	albumArtist := this.QMediaPlayer.MetaData("AlbumArtist")
+	title := this.QMediaPlayer.MetaData("Title").ToString()
+	subTitle := this.QMediaPlayer.MetaData("SubTitle").ToString()
+	author := this.QMediaPlayer.MetaData("Author").ToString()
+	lyrics := this.QMediaPlayer.MetaData("Lyrics").ToString()
+	duration := this.QMediaPlayer.MetaData("Duration").ToString()
+	albumTitle := this.QMediaPlayer.MetaData("AlbumTitle").ToString()
+	albumArtist := this.QMediaPlayer.MetaData("AlbumArtist").ToString()
+	contributingArtist := this.QMediaPlayer.MetaData("ContributingArtist").ToString()
+	if author == "" {
+		if contributingArtist != "" {
+			author = contributingArtist
+		}
+	}
 	return map[string]string{
-		"title":       title.ToString(),
-		"author":      author.ToString(),
-		"lyrics":      lyrics.ToString(),
-		"duration":    duration.ToString(),
-		"albumTitle":  albumTitle.ToString(),
-		"albumArtist": albumArtist.ToString(),
+		"title":       title,
+		"subTitle":    subTitle,
+		"author":      author,
+		"lyrics":      lyrics,
+		"duration":    duration,
+		"albumTitle":  albumTitle,
+		"albumArtist": albumArtist,
 	}
 }
 
