@@ -20,6 +20,7 @@ type MainWindow struct {
 	player          *utils.Player
 	fileDialog      *utils.FileDialog
 	musicList       *models.MusicList
+	musicLrc        *models.MusicLrc
 }
 
 func NewMainWindow() *MainWindow {
@@ -43,6 +44,7 @@ func (this *MainWindow) init() {
 	this.player = utils.NewPlayer()
 	this.fileDialog = utils.NewFileDialog()
 	this.musicList = models.NewMusicList()
+	this.musicLrc = models.NewMusicLrc()
 
 	this.musicListFrame.SetAllSongContext(func(index int) []views.MusicListContextAction {
 		isFav := this.musicList.IsFavAllMusic(index)
@@ -143,14 +145,39 @@ func (this *MainWindow) init() {
 			},
 		}
 	})
+	this.musicListFrame.SetAllDoubleClickListener(func(index int) {
+		this.musicList.PlayAllMusic(index)
+	})
+	this.musicListFrame.SetFavDoubleClickListener(func(index int) {
+		this.musicList.PlayFavMusic(index)
+	})
 
-	this.musicList.SetPlayListener(func(music models.Music) {
+	this.musicLrc.SetDownloadedListener(func() {
+		this.loadLrc()
+	})
+
+	this.musicList.SetPlayListener(func(music models.Music, playIsAll bool, index int) {
 		this.Log.Debug("mm %v", music)
 		this.initBottomToolEmpty()
 		this.musicInfoFrame.SetTitle(music.Title)
 		this.musicInfoFrame.SetArtist(music.Artist)
 		this.player.SetFileName(music.FilePath)
 		this.player.Play()
+		if playIsAll {
+			this.musicListFrame.ActiveAllIndex(index)
+			this.musicListFrame.ActiveFavIndex(-1)
+		} else {
+			this.musicListFrame.ActiveAllIndex(-1)
+			this.musicListFrame.ActiveFavIndex(index)
+		}
+		hasLoad := this.loadLrc()
+		if hasLoad == false {
+			this.musicLrc.DownloadLrc(this, music)
+			this.musicInfoFrame.SetLrc([]string{"下载歌词中..."})
+			this.musicInfoFrame.ActiveLrcIndex(0)
+		} else {
+			this.musicInfoFrame.ActiveLrcIndex(0)
+		}
 	})
 	this.musicList.SetAddAllMusicListener(func(music models.Music) {
 		this.musicListFrame.AddAllSong(music.Title, music.Artist, music.Duration)
@@ -169,6 +196,10 @@ func (this *MainWindow) init() {
 	this.player.SetPositionChangeListener(func() {
 		minPosition, maxPosition, curPosition, curPositionDesc := this.player.GetPosition()
 		this.bottomToolFrame.SetSeek(minPosition, maxPosition, curPosition, curPositionDesc)
+		lrcProgress := this.musicLrc.GetLrcProgress(this.musicList.GetPlayMusic(), curPosition)
+		if lrcProgress != -1 {
+			this.musicInfoFrame.ActiveLrcIndex(lrcProgress)
+		}
 	})
 	this.player.SetDurationChangeListener(func() {
 		minPosition, maxPosition, curPosition, curPositionDesc := this.player.GetPosition()
@@ -215,7 +246,31 @@ func (this *MainWindow) init() {
 	this.topToolFrame.SetMiniListener(func() {
 		this.ShowMinimized()
 	})
+	this.topToolFrame.SetMoveListener(func(xMove int, yMove int) {
+		pos := this.Pos()
+		this.Move2(pos.X()+xMove, pos.Y()+yMove)
+	})
 	this.initBottomToolErr()
+}
+
+func (this *MainWindow) loadLrc() bool {
+	curMusic := this.musicList.GetPlayMusic()
+	if curMusic.Id == 0 {
+		return false
+	}
+	hasLrc := this.musicLrc.HasLrc(curMusic)
+	if hasLrc == false {
+		return false
+	}
+	lrcStatus := this.musicLrc.GetLrcStatus(curMusic)
+	if lrcStatus != "" {
+		this.musicInfoFrame.SetLrc([]string{lrcStatus})
+		this.musicInfoFrame.ActiveLrcIndex(0)
+		return true
+	}
+	lrc := this.musicLrc.GetLrcData(curMusic)
+	this.musicInfoFrame.SetLrc(lrc)
+	return true
 }
 
 func (this *MainWindow) initBottomToolErr() {

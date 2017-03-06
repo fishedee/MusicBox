@@ -40,8 +40,16 @@ func (this *MusicListFrame) DelAllSong(index int) {
 	this.allMusicTable.DelSong(index)
 }
 
+func (this *MusicListFrame) SetAllDoubleClickListener(handler func(index int)) {
+	this.allMusicTable.SetDoubleClickListener(handler)
+}
+
 func (this *MusicListFrame) SetAllSongContext(handler func(index int) []MusicListContextAction) {
 	this.allMusicTable.SetContextMenuListener(handler)
+}
+
+func (this *MusicListFrame) ActiveAllIndex(index int) {
+	this.allMusicTable.ActiveIndex(index)
 }
 
 func (this *MusicListFrame) AddFavSong(title string, artist string, timeString string) {
@@ -52,6 +60,14 @@ func (this *MusicListFrame) DelFavSong(index int) {
 	this.favMusicTable.DelSong(index)
 }
 
+func (this *MusicListFrame) SetFavDoubleClickListener(handler func(index int)) {
+	this.favMusicTable.SetDoubleClickListener(handler)
+}
+
 func (this *MusicListFrame) SetFavSongContext(handler func(index int) []MusicListContextAction) {
 	this.favMusicTable.SetContextMenuListener(handler)
+}
+
+func (this *MusicListFrame) ActiveFavIndex(index int) {
+	this.favMusicTable.ActiveIndex(index)
 }

@@ -21,7 +21,7 @@ type MusicList struct {
 	playIsAll           bool
 	playIndex           int
 	idCounter           int
-	playListener        func(music Music)
+	playListener        func(music Music, playIsAll bool, playIndex int)
 	addAllMusicListener func(music Music)
 	delAllMusicListener func(index int)
 	addFavMusicListener func(music Music)
@@ -47,11 +47,11 @@ func (this *MusicList) AddAllMusic(music Music) {
 	music.Id = this.idCounter
 	this.idCounter++
 	this.allMusic = append(this.allMusic, music)
-	if len(this.allMusic) == 1 {
-		this.play(true, 0)
-	}
 	if this.addAllMusicListener != nil {
 		this.addAllMusicListener(music)
+	}
+	if len(this.allMusic) == 1 {
+		this.play(true, 0)
 	}
 }
 
@@ -59,8 +59,7 @@ func (this *MusicList) DelAllMusic(index int) {
 	if index < 0 || index >= len(this.allMusic) {
 		return
 	}
-	delMusic := this.allMusic[index]
-	this.UnFavAllMusic(delMusic.Id)
+	this.UnFavAllMusic(index)
 	newMusic := []Music{}
 	for singleIndex, singleMusic := range this.allMusic {
 		if singleIndex == index {
@@ -76,7 +75,11 @@ func (this *MusicList) DelAllMusic(index int) {
 			if len(this.allMusic) == 0 {
 				this.playIndex = -1
 			} else {
-				this.play(true, this.playIndex)
+				if this.playIndex == len(this.allMusic) {
+					this.play(true, 0)
+				} else {
+					this.play(true, this.playIndex)
+				}
 			}
 		}
 	}
@@ -149,7 +152,11 @@ func (this *MusicList) DelFavMusic(index int) {
 			if len(this.favMusic) == 0 {
 				this.playIndex = -1
 			} else {
-				this.play(false, this.playIndex)
+				if this.playIndex == len(this.favMusic) {
+					this.play(false, 0)
+				} else {
+					this.play(false, this.playIndex)
+				}
 			}
 		}
 	}
@@ -195,6 +202,20 @@ func (this *MusicList) Next() {
 	this.play(this.playIsAll, this.playIndex)
 }
 
+func (this *MusicList) GetPlayMusic() Music {
+	var music []Music
+	if this.playIsAll {
+		music = this.allMusic
+	} else {
+		music = this.favMusic
+	}
+	if this.playIndex == -1 {
+		return Music{}
+	} else {
+		return music[this.playIndex]
+	}
+}
+
 func (this *MusicList) play(playIsAll bool, playIndex int) {
 	this.playIsAll = playIsAll
 	this.playIndex = playIndex
@@ -205,11 +226,11 @@ func (this *MusicList) play(playIsAll bool, playIndex int) {
 		music = this.favMusic
 	}
 	if this.playListener != nil {
-		this.playListener(music[this.playIndex])
+		this.playListener(music[this.playIndex], playIsAll, playIndex)
 	}
 }
 
-func (this *MusicList) SetPlayListener(listener func(music Music)) {
+func (this *MusicList) SetPlayListener(listener func(music Music, playIsAll bool, playIndex int)) {
 	this.playListener = listener
 }
 

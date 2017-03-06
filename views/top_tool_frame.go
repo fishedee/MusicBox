@@ -2,16 +2,20 @@ package views
 
 import (
 	. "github.com/fishedee/web"
+	"github.com/therecipe/qt/core"
+	"github.com/therecipe/qt/gui"
 	"github.com/therecipe/qt/widgets"
 )
 
 type TopToolFrame struct {
 	*widgets.QFrame
 	Model
-	parent      widgets.QWidget_ITF
-	isDraging   bool
-	closeButton *PushButton
-	miniButton  *PushButton
+	parent       widgets.QWidget_ITF
+	isDraging    bool
+	closeButton  *PushButton
+	miniButton   *PushButton
+	moveListener func(x int, y int)
+	dragPosition *core.QPoint
 }
 
 func NewTopToolFrame(parent widgets.QWidget_ITF) *TopToolFrame {
@@ -35,6 +39,9 @@ func (this *TopToolFrame) init(parent widgets.QWidget_ITF) {
 	this.SetGeometry2(0, 0, 800, 60)
 	this.addRobotLogo()
 	this.addButtons()
+	this.ConnectMousePressEvent(this.pressEvent)
+	this.ConnectMouseReleaseEvent(this.releaseEvent)
+	this.ConnectMouseMoveEvent(this.moveEvent)
 }
 
 func (this *TopToolFrame) addRobotLogo() {
@@ -73,4 +80,27 @@ func (this *TopToolFrame) SetCloseListener(listener func()) {
 
 func (this *TopToolFrame) SetMiniListener(listener func()) {
 	this.miniButton.SetClickListener(listener)
+}
+
+func (this *TopToolFrame) pressEvent(event *gui.QMouseEvent) {
+	this.isDraging = true
+	this.dragPosition = event.GlobalPos()
+}
+
+func (this *TopToolFrame) releaseEvent(event *gui.QMouseEvent) {
+	this.isDraging = false
+}
+
+func (this *TopToolFrame) moveEvent(event *gui.QMouseEvent) {
+	if this.isDraging {
+		nowDragPosition := event.GlobalPos()
+		xMove := nowDragPosition.X() - this.dragPosition.X()
+		yMove := nowDragPosition.Y() - this.dragPosition.Y()
+		this.dragPosition = nowDragPosition
+		this.moveListener(xMove, yMove)
+	}
+}
+
+func (this *TopToolFrame) SetMoveListener(listener func(x int, y int)) {
+	this.moveListener = listener
 }

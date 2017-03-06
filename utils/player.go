@@ -2,19 +2,19 @@ package utils
 
 import (
 	"fmt"
-	. "github.com/fishedee/web"
+	"github.com/fishedee/web"
 	"github.com/therecipe/qt/core"
 	"github.com/therecipe/qt/multimedia"
 )
 
 type Player struct {
 	*multimedia.QMediaPlayer
-	Model
+	web.Model
 }
 
 func NewPlayer() *Player {
 	player := Player{}
-	InitModel(&player)
+	web.InitModel(&player)
 	player.init()
 	return &player
 }
@@ -112,6 +112,14 @@ func (this *Player) SetMetaListener(handler func()) {
 func (this *Player) SetErrorListener(handler func()) {
 	this.QMediaPlayer.ConnectMediaStatusChanged(func(status multimedia.QMediaPlayer__MediaStatus) {
 		if status == multimedia.QMediaPlayer__InvalidMedia {
+			handler()
+		}
+	})
+}
+
+func (this *Player) SetLoadedListener(handler func()) {
+	this.QMediaPlayer.ConnectMediaStatusChanged(func(status multimedia.QMediaPlayer__MediaStatus) {
+		if status == multimedia.QMediaPlayer__LoadedMedia {
 			handler()
 		}
 	})

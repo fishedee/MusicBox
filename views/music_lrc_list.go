@@ -52,20 +52,23 @@ func (this *MusicLrcList) SetLrc(lrc []string) {
 }
 
 func (this *MusicLrcList) ActiveIndex(index int) {
+	if this.curIndex == index {
+		return
+	}
 	if this.curIndex != -1 {
-		color := gui.NewQColor3(0, 0, 0, 0)
+		color := gui.NewQColor3(0, 0, 0, 255)
 		brush := gui.NewQBrush3(color, 0)
 		this.model.Item(this.curIndex, 0).SetForeground(brush)
 		this.model.Item(this.curIndex, 1).SetForeground(brush)
 		this.model.Item(this.curIndex, 2).SetForeground(brush)
 	}
 	if index != -1 {
-		color := gui.NewQColor3(255, 0, 0, 0)
+		color := gui.NewQColor3(255, 0, 0, 255)
 		brush := gui.NewQBrush3(color, 0)
 		this.model.Item(index, 0).SetForeground(brush)
 		this.model.Item(index, 1).SetForeground(brush)
 		this.model.Item(index, 2).SetForeground(brush)
-		this.ScrollTo(this.model.Index(index, 0, nil), widgets.QAbstractItemView__PositionAtCenter)
+		this.ScrollTo(this.model.Index(index, 0, core.NewQModelIndex()), widgets.QAbstractItemView__PositionAtCenter)
 	}
 	this.curIndex = index
 }

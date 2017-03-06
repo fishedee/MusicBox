@@ -58,7 +58,6 @@ func (this *MusicListTable) init(parent widgets.QWidget_ITF) {
 
 	this.SetModel(this.model)
 	this.curIndex = -1
-
 }
 
 func (this *MusicListTable) AddSong(title string, artist string, timeString string) {
@@ -72,7 +71,10 @@ func (this *MusicListTable) AddSong(title string, artist string, timeString stri
 }
 
 func (this *MusicListTable) DelSong(index int) {
-	this.model.RemoveRow(index, nil)
+	this.model.RemoveRow(index, core.NewQModelIndex())
+	if this.curIndex > index {
+		this.curIndex--
+	}
 }
 
 func (this *MusicListTable) ClearSong() {
@@ -91,18 +93,18 @@ func (this *MusicListTable) SetDoubleClickListener(handler func(index int)) {
 
 func (this *MusicListTable) ActiveIndex(index int) {
 	if this.curIndex != -1 {
-		color := gui.NewQColor3(0, 0, 0, 0)
+		color := gui.NewQColor3(0, 0, 0, 255)
 		brush := gui.NewQBrush3(color, 0)
 		this.model.Item(this.curIndex, 0).SetForeground(brush)
 		this.model.Item(this.curIndex, 1).SetForeground(brush)
 		this.model.Item(this.curIndex, 2).SetForeground(brush)
 	}
 	if index != -1 {
-		color := gui.NewQColor3(255, 0, 0, 0)
-		brush := gui.NewQBrush3(color, 0)
-		this.model.Item(index, 0).SetForeground(brush)
-		this.model.Item(index, 1).SetForeground(brush)
-		this.model.Item(index, 2).SetForeground(brush)
+		color2 := gui.NewQColor3(255, 0, 0, 255)
+		brush2 := gui.NewQBrush3(color2, 0)
+		this.model.Item(index, 0).SetForeground(brush2)
+		this.model.Item(index, 1).SetForeground(brush2)
+		this.model.Item(index, 2).SetForeground(brush2)
 	}
 	this.curIndex = index
 }
@@ -110,6 +112,7 @@ func (this *MusicListTable) ActiveIndex(index int) {
 func (this *MusicListTable) getContextMenu(actions []MusicListContextAction) *widgets.QMenu {
 	contextMenu := widgets.NewQMenu(this.parent)
 	for _, singleAction := range actions {
+		singleActionAction := singleAction.Action
 		if singleAction.Name != "" {
 			action := widgets.NewQAction2(singleAction.Name, this.parent)
 			action.ConnectTriggered(func(checked bool) {
@@ -119,7 +122,7 @@ func (this *MusicListTable) getContextMenu(actions []MusicListContextAction) *wi
 					row := this.model.ItemFromIndex(singleIndex).Row()
 					selectedRows = append(selectedRows, row)
 				}
-				singleAction.Action(selectedRows)
+				singleActionAction(selectedRows)
 			})
 			contextMenu.QWidget.AddAction(action)
 		} else {
