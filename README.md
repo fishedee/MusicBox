@@ -1,6 +1,6 @@
-# MusicBox
+# goqt-sample
 
-MusicPlayer by go
+qt in go sample
 
 # 优点
 
@@ -16,9 +16,14 @@ MusicPlayer by go
 
 写起来挺麻烦的，实在不好用，建议不用qt widgets写界面，功能不全
 
-# 功能
+# MusicBox 功能
 
 * 播放暂停音乐
 * 音量和进度调节
 * 歌单轮播，收藏
 * 自动在线下载歌词
+
+# Painter 功能
+
+* 直线，矩形，圆圈
+* 颜色
